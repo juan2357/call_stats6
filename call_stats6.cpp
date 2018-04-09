@@ -1,4 +1,4 @@
-/* 
+/*
 
 
 */
@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -48,21 +49,38 @@ private:
 
 /************************************************************************************************************************************/
 //Name: default constructor
-//Precondition: 
-//Postcondition: 
-//Decription: Reads the data file of call information (cell number, relays and call length) into the dynamic array of call record, 
+//Precondition:
+//Postcondition:
+//Decription: Reads the data file of call information (cell number, relays and call length) into the dynamic array of call record,
 //call_DB. If the count because equal to the size the function double_size is called and the memory allocated to call_DB is doubled.
 /************************************************************************************************************************************/
 call_class::call_class()
 {
-	
+	count = 0;
+	size = 10;
+	call_DB = new call_record[size];
+	ifstream in;
+	in.open("callstats_data.txt");
 
+	while (!in.eof()) {
+		call_record record;
+		in >> record.firstname
+			 >> record.lastname
+			 >> record.cell_number
+			 >> record.relays
+			 >> record.call_length;
+
+		 if (count == size) {
+			 double_size();
+		 }
+		 call_DB[count++] = record;
+	}
 }
 
 /***********************************************************************************************************************************/
 //Name: is_empty
-//Precondition: 
-//Postcondition: 
+//Precondition:
+//Postcondition:
 //Decription: returns true if call_DB is empty
 /**********************************************************************************************************************************/
 bool call_class::is_empty()
@@ -71,9 +89,9 @@ bool call_class::is_empty()
 }
 
 /**********************************************************************************************************************************/
-//Name: is_full 
-//Precondition: 
-//Postcondition: 
+//Name: is_full
+//Precondition:
+//Postcondition:
 //Decription: returns true if call_DB is full
 /*********************************************************************************************************************************/
 bool call_class::is_full()
@@ -83,40 +101,72 @@ bool call_class::is_full()
 
 /**********************************************************************************************************************************/
 //Name: search
-//Precondition: 
-//Postcondition: 
+//Precondition:
+//Postcondition:
 //Decription: locates key in call_DB if it is there; otherwise -1 is returned
 /*********************************************************************************************************************************/
 int call_class::search(const string key)
 {
+	for (int i = 0; i < count; i++){
+		if (key == call_DB[i].cell_number){
+			return i;
+		}
+	}
 	return -1;
 }
 
 /*********************************************************************************************************************************/
 //Name: add
-//Precondition: 
-//Postcondition: 
-//Decription: adds a call_record to call_DB; if call_DB is full, double_size is called to increase the size of call_DB. The user 
-//            is prompted to enter the firstname, lastname, cell number, relays and call length. 
+//Precondition:
+//Postcondition:
+//Decription: adds a call_record to call_DB; if call_DB is full, double_size is called to increase the size of call_DB. The user
+//            is prompted to enter the firstname, lastname, cell number, relays and call length.
 /********************************************************************************************************************************/
 void call_class::add( )
 {
+	if (size == count) {
+		double_size();
+	}
+	call_record record;
+	cout << "Enter first name";
+	cin >> record.firstname;
+	cout << "Enter last name";
+	cin >> record.lastname;
+	cout << "Enter cell number";
+	cin >> record.cell_number;
+	cout << "Enter number of relays";
+	cin >> record.relays;
+	cout << "Enter call length";
+	cin >> record.call_length;
+
+	if (count == size) {
+		double_size();
+	}
+	call_DB[count++] = record;
 }
 
 /********************************************************************************************************************************/
 //Name: remove
-//Precondition: 
-//Postcondition: 
+//Precondition:
+//Postcondition:
 //Decription: remove key from call_DB if it is there.
 /*******************************************************************************************************************************/
 void call_class::remove(const string key)
 {
+	for (int i = count - 1; i >= 0; i--) {
+		if (call_DB[i].cell_number == key) {
+			for (int j = i; j < count - 1l j++) {
+				call_DB[j] = call_DB[j+1];
+			}
+			count--;
+		}
+	}
 }
 
 /******************************************************************************************************************************/
 //Name: double_size
-//Precondition: 
-//Postcondition: 
+//Precondition:
+//Postcondition:
 //Decription: doubles the size (capacity) of call_DB
 /******************************************************************************************************************************/
 void call_class::double_size( )
@@ -136,35 +186,62 @@ void call_class::double_size( )
 
 /******************************************************************************************************************************/
 //Name: process
-//Precondition: 
-//Postcondition: 
+//Precondition:
+//Postcondition:
 //Decription: calculate the net cost, tax rate, call tax and total cost for every call record in call_DB.
 /*****************************************************************************************************************************/
 void call_class::process()
 {
+	for (int i = 0; i < count; i++) {
+		if (call_DB[i].relays <= 5) {
+			call_DB[i].call_tax = 0.01;
+		}	else if (call_DB[i].relays <= 11) {
+			call_DB[i].call_tax = 0.03;
+		}	else if (call_DB[i].relays <= 20) {
+			call_DB[i].call_tax = 0.05;
+		}	else if (call_DB[i].relays <= 50) {
+			call_DB[i].call_tax = 0.08;
+		} else if(call_DB[i].relays > 50) {
+			call_DB[i].call_tax = 0.12;
+		}
+
+	call_DB[i].net_cost = call_DB[i].relays / 50.0 * 0.40 * call_DB[i].call_length;
+	call_DB[i].tax_rate = call_DB[i].net_cost * call_DB[i].call_tax;
+	call_DB[i].total_cost = call_DB[i].net_cost + call_DB[i].tax_rate;
+	}
 }
 
 
 /****************************************************************************************************************************/
 //Name: print
-//Precondition: 
-//Postcondition: 
+//Precondition:
+//Postcondition:
 //Decription: prints every field of every call_record in call_DB formatted to the screen.
 /***************************************************************************************************************************/
 void call_class::print()
 {
+	cout.setf(ios::showpoint);
+	cout.precision(2);
+	cout.setf(ios::fixed);
+
 	for(int i=0; i<count; i++)
 	{
-		cout<<call_DB[i].firstname<<"  "<<call_DB[i].lastname
-			<<"  "<<call_DB[i].relays<<"  "<<call_DB[i].cell_number
-			<<"  "<<call_DB[i].call_length<<endl;
+		cout << std::left << setw(30)<< call_DB[i].firstname <<"  "
+				 << std::left << setw(30)<<call_DB[i].lastname <<"  "
+				 << std::left << setw(30)<<call_DB[i].relays <<"  "
+				 << std::left << setw(30)<<call_DB[i].cell_number <<"  "
+				 << std::left << setw(30)<<call_DB[i].call_length <<"  "
+				 << std::left << setw(30)<<call_DB[i].net_cost << "  "
+				 << std::left << setw(30)<<call_DB[i].tax_rate << "  "
+				 << std::left << setw(30)<<call_tax[i].call_tax << "  "
+				 << std::left << setw(30)<<call_DB[i].total_cost << endl;
 	}
 }
 
 /****************************************************************************************************************************/
 //Name: destructor
-//Precondition: 
-//Postcondition: 
+//Precondition:
+//Postcondition:
 //Decription: de-allocates all memory allocated to call_DB.  This should be the last function to be called before the program
 //            is exited.
 /***************************************************************************************************************************/
@@ -177,9 +254,9 @@ call_class::~call_class()
 int main()
 {
 	call_class MyClass;
-
+	MyClass.process();
 	MyClass.print();
 
-	
+
 	return 0;
 }
