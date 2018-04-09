@@ -155,7 +155,7 @@ void call_class::remove(const string key)
 {
 	for (int i = count - 1; i >= 0; i--) {
 		if (call_DB[i].cell_number == key) {
-			for (int j = i; j < count - 1l j++) {
+			for (int j = i; j < count - 1; j++) {
 				call_DB[j] = call_DB[j+1];
 			}
 			count--;
@@ -226,15 +226,15 @@ void call_class::print()
 
 	for(int i=0; i<count; i++)
 	{
-		cout << std::left << setw(30)<< call_DB[i].firstname <<"  "
-				 << std::left << setw(30)<<call_DB[i].lastname <<"  "
-				 << std::left << setw(30)<<call_DB[i].relays <<"  "
-				 << std::left << setw(30)<<call_DB[i].cell_number <<"  "
-				 << std::left << setw(30)<<call_DB[i].call_length <<"  "
-				 << std::left << setw(30)<<call_DB[i].net_cost << "  "
-				 << std::left << setw(30)<<call_DB[i].tax_rate << "  "
-				 << std::left << setw(30)<<call_tax[i].call_tax << "  "
-				 << std::left << setw(30)<<call_DB[i].total_cost << endl;
+		cout << std::left << setw(30)<< call_DB[i].firstname <<"  "<< endl;
+		cout << std::left << setw(30)<<call_DB[i].lastname <<"  "<< endl;
+	  cout << std::left << setw(30)<<call_DB[i].relays <<"  "<< endl;
+		cout << std::left << setw(30)<<call_DB[i].cell_number <<"  "<< endl;
+		cout << std::left << setw(30)<<call_DB[i].call_length <<"  "<< endl;
+		cout << std::left << setw(30)<<call_DB[i].net_cost << "  "<< endl;
+		cout << std::left << setw(30)<<call_DB[i].tax_rate << "  "<< endl;
+		cout << std::left << setw(30)<<call_DB[i].call_tax << "  "<< endl;
+		cout << std::left << setw(30)<<call_DB[i].total_cost << endl << endl;
 	}
 }
 
